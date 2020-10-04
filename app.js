@@ -1,14 +1,21 @@
 const express = require('express');
 const morgan  = require('morgan');
+const mongoose = require('mongoose')
+const Blog    = require('./models/blog')
 // Express app 
 
 const app = express();
+
+const dbUrl = 'mongodb://localhost:27017/blog'
+mongoose.connect(dbUrl , { useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => app.listen(9000, () => console.log("Listening for port 6000")))
+.catch(() => console.log("Database connection failed"))
 
 //  Register view engine
 app.set('view engine', 'ejs')
 // app.set('views', 'views')
 
-app.listen(9000, () => console.log("Listening for port 6000"))
+
 // app.use((req, res, next) => {
 //     console.log('New Request was made');
 //     console.log('Host', req.hostname);
@@ -23,12 +30,10 @@ app.use(express.static('public'));
 
 app.get('/', (req, res) => {
     // res.sendFile('./views/index.html' , {root: __dirname})
-    const blogs = [
-        { title: 'What a nice article', snippet: 'lorem impusm doller sit' },
-        { title: 'What a Interesting article', snippet: 'lorem impusm doller sit' },
-        { title: 'What a Awsome article', snippet: 'lorem impusm doller sit' },
-    ]
-    res.render('index', { title: 'Home', blogs })
+    Blog.find().sort({createdAt: -1})
+    .then(result => res.render('index', { title: 'Home', blogs : result }))
+    .catch(err => console.log(err))
+    
 })
 // app.use((req, res, next) => {
 //     console.log('In next middleware' );
@@ -47,6 +52,27 @@ app.get('/blog', (req, res) => {
     res.redirect('/')
 })
 
+app.get('/add-blog', (req, res) => {
+    const blog = new Blog({
+        title : 'New Blog 2',
+        snippet : 'About my new blog',
+        body : 'more about my new blog'
+    });
+    blog.save()
+    .then((result) => res.send(result))
+    .catch(err => console.log(err))
+})
+
+app.get('/all-blogs', (req, res) => {
+    Blog.find()
+    .then((result) => res.send(result))
+    .catch(err => console.log(err))
+})
+app.get('/single-blog', (req, res) => {
+    Blog.findById('5f79d4fa87d70d336032f892')
+    .then((result) => res.send(result))
+    .catch(err => console.log(err))
+})
 app.use((req, res) => {
     res.status(404).render('404', { title: '404' })
 })
