@@ -5,7 +5,7 @@ const Blog    = require('./models/blog')
 // Express app 
 
 const app = express();
-
+app.use(express.urlencoded({extended:true}))
 const dbUrl = 'mongodb://localhost:27017/blog'
 mongoose.connect(dbUrl , { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => app.listen(9000, () => console.log("Listening for port 6000")))
@@ -71,6 +71,32 @@ app.get('/all-blogs', (req, res) => {
 app.get('/single-blog', (req, res) => {
     Blog.findById('5f79d4fa87d70d336032f892')
     .then((result) => res.send(result))
+    .catch(err => console.log(err))
+})
+
+// Blog
+
+app.post('/blogs', (req, res) => {
+    blog = new Blog(req.body)
+    blog.save()
+    .then(() => {
+        res.redirect('/')
+    })
+    .catch(err => console.log(err))
+})
+
+app.get('/blogs/:id', (req, res) => {
+    const id = req.params.id;
+    Blog.findById(id)
+    .then((result) => {
+        res.render('details', { blogData: result , title: "Details page"})
+    })
+    .catch(err => console.log(err))
+})
+
+app.delete('/blogs/:id' , (req, res) => {
+    Blog.findByIdAndDelete(req.params.id)
+    .then(() => res.end())
     .catch(err => console.log(err))
 })
 app.use((req, res) => {

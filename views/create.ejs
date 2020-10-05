@@ -2,16 +2,20 @@
 <body>
     <%- include('./partials/nav.ejs') %>
     <section>
-        <form action="">
+        <form action="/blogs" method="post">
             <h1 class="title">Write a new Blog</h1>
 
             <div>
                 <label for="">Title</label>
-                <input type="text">
+                <input type="text" name="title">
             </div>
             <div>
                 <label for="">Snippet</label>
-                <textarea col="10" row="10"></textarea>
+                <textarea col="10" row="10" name="snippet"></textarea>
+            </div>
+            <div>
+                <label for="">Description</label>
+                <textarea col="10" row="10" name="body"></textarea>
             </div>
             <div class="submit">
                 <button type="submit">Submit</button>
